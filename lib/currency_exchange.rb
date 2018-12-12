@@ -42,7 +42,7 @@ loop do
   when 2
     print 'Quanto em Dólares deseja vender? '
     selling = USD.new(amount: gets.to_f, dollar_rate: cash_register.dollar_rate)
-    cash_register.sell(selling)
+    puts cash_register.sell(selling)
   when 3
     print 'Quanto em Reais deseja comprar? '
     buying = BRL.new(amount: gets.to_f, dollar_rate: cash_register.dollar_rate)
@@ -50,7 +50,7 @@ loop do
   when 4
     print 'Quanto em Reais deseja vender? '
     selling = BRL.new(amount: gets.to_f, dollar_rate: cash_register.dollar_rate)
-    cash_register.sell(selling)
+    puts cash_register.sell(selling)
   when 5
     cash_register.transactions.each { |transaction| puts transaction.to_s }
   when 6

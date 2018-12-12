@@ -23,6 +23,7 @@ class CashRegister
     available_cash[money.cost.name].amount -= money.cost.amount
     available_cash[money.name].amount += money.amount
     transactions << create_transaction('Compra', money)
+    export_last_transaction
     transactions.last.message
   end
 
@@ -35,18 +36,8 @@ class CashRegister
     available_cash[money.name].amount -= money.amount
     available_cash[money.cost.name].amount += money.cost.amount
     transactions << create_transaction('Venda', money)
+    export_last_transaction
     transactions.last.message
-  end
-
-  def create_transaction(operation, money)
-    transaction = Transaction.new(
-      operation: operation,
-      money: money,
-      dollar_rate: dollar_rate
-    )
-    transaction.id = ++transactions.length
-    transaction.message = "#{operation} de #{money.symbol} #{money.amount} realizada!"
-    transaction
   end
 
   def summary
@@ -59,7 +50,24 @@ class CashRegister
     Terminal::Table.new :title => "Situação do Caixa", :rows => rows
   end
 
+  def export_last_transaction
+    File.open('transactions.txt', 'a') do |file|
+      file.puts transactions.last.to_s
+    end
+  end
+
   private
+
+  def create_transaction(operation, money)
+    transaction = Transaction.new(
+      operation: operation,
+      money: money,
+      dollar_rate: dollar_rate
+    )
+    transaction.id = ++transactions.length
+    transaction.message = "#{operation} de #{money.symbol} #{money.amount} realizada!"    
+    transaction
+  end
 
   def can_buy?(money)
     currency = money.cost.name
