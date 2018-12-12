@@ -2,7 +2,7 @@ require_relative 'transaction'
 require_relative 'usd'
 require_relative 'brl'
 
-class CashRegister
+class Cashier
   attr_accessor :transactions, :dollar_rate, :available_cash
 
   def initialize(dollar_rate:, usd_amount:, brl_amount:)
