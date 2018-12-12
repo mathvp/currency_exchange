@@ -1,3 +1,5 @@
+require 'terminal-table'
+
 class Transaction
   attr_accessor :id, :operation, :money, :dollar_rate, :status, :message
 
@@ -10,12 +12,12 @@ class Transaction
   end
 
   def to_s
-    msg =  "\nTransação nº #{id}\n"
-    msg << "Tipo: #{operation}\n"
-    msg << "Quantia: #{money.symbol}#{money.amount}\n"
-    msg << "Moeda: #{money.description}\n"
-    msg << "Cotação: #{dollar_rate}\n"
-    msg << "Total: U$#{money.to_usd}\n"
-    msg
+    rows = []
+    rows << ['Tipo:', operation]
+    rows << ['Quantia:', "#{money.symbol}#{money.amount}"]
+    rows << ['Moeda:', money.description]
+    rows << ['Cotação:', dollar_rate]
+    rows << ['Total:', "U$#{money.to_usd}"]
+    Terminal::Table.new :title => "Transação nº #{id}", :rows => rows
   end
 end

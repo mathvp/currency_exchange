@@ -50,12 +50,13 @@ class CashRegister
   end
 
   def summary
-    msg =  "\nCotação dóllar: #{dollar_rate}\n"
-    msg << "Valores disponíveis:\n"
+    rows =  []
+    rows << ['Cotação dóllar:', dollar_rate]
+    rows << ['Valores disponíveis:', nil]
     available_cash.each do |cash|
-      msg << "#{cash[1].description}: #{cash[1].symbol} #{cash[1].amount}\n"
+      rows << ["#{cash[1].description}:", "#{cash[1].symbol} #{cash[1].amount}"]
     end
-    msg
+    Terminal::Table.new :title => "Situação do Caixa", :rows => rows
   end
 
   private
