@@ -60,7 +60,7 @@ loop do
     selling = BRL.new(amount: gets.to_f, dollar_rate: cashier.dollar_rate)
     puts cashier.sell(selling)
   when LIST_TRANSACTIONS
-    cashier.transactions.each { |transaction| puts transaction.to_s }
+    puts cashier.list_all_transactions
   when CASHIER_SUMMARY
     puts cashier.summary
   when EXIT_APP

@@ -1,9 +1,11 @@
 require_relative 'transaction'
 require_relative 'usd'
 require_relative 'brl'
+require 'terminal-table'
+require 'sqlite3'
 
 class Cashier
-  attr_accessor :transactions, :dollar_rate, :available_cash
+  attr_accessor :dollar_rate, :available_cash
 
   def initialize(dollar_rate:, usd_amount:, brl_amount:)
     @dollar_rate = dollar_rate
@@ -11,7 +13,6 @@ class Cashier
       'usd' => USD.new(amount: usd_amount, dollar_rate: dollar_rate),
       'brl' => BRL.new(amount: brl_amount, dollar_rate: dollar_rate)
     }
-    @transactions = []
   end
 
   def buy(money)
@@ -22,9 +23,9 @@ class Cashier
 
     available_cash[money.cost.name].amount -= money.cost.amount
     available_cash[money.name].amount += money.amount
-    transactions << create_transaction('Compra', money)
-    export_last_transaction
-    transactions.last.message
+    transaction = create_transaction('Compra', money)
+    transaction.save
+    transaction.message
   end
 
   def sell(money)
@@ -35,9 +36,9 @@ class Cashier
 
     available_cash[money.name].amount -= money.amount
     available_cash[money.cost.name].amount += money.cost.amount
-    transactions << create_transaction('Venda', money)
-    export_last_transaction
-    transactions.last.message
+    transaction = create_transaction('Venda', money)
+    transaction.save
+    transaction.message
   end
 
   def summary
@@ -50,10 +51,23 @@ class Cashier
     Terminal::Table.new :title => "Situação do Caixa", :rows => rows
   end
 
-  def export_last_transaction
-    File.open('transactions.txt', 'a') do |file|
-      file.puts transactions.last.to_s
+  def list_all_transactions
+    db = SQLite3::Database.open 'cambio.db'
+    sql_select = "select "
+    sql_select << "id, operation, amount, currency, dollar_rate, total "
+    sql_select << "from transactions;"    
+    tables = [] 
+    select_result = db.execute(sql_select) 
+    select_result.each do |row|
+      result = []
+      result << ['Tipo:', row[1]]
+      result << ['Quantia:', row[2]]
+      result << ['Moeda:', row[3]]
+      result << ['Cotação:', row[4]]
+      result << ['Total:', "U$#{row[5]}"]
+      tables << (Terminal::Table.new :title => "Transação nº #{row[0]}", :rows => result)
     end
+    tables
   end
 
   private
@@ -64,7 +78,6 @@ class Cashier
       money: money,
       dollar_rate: dollar_rate
     )
-    transaction.id = ++transactions.length
     transaction.message = "#{operation} de #{money.symbol} #{money.amount} realizada!"    
     transaction
   end
